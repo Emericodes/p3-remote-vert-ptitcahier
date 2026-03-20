@@ -3,6 +3,7 @@ export type Announcement = {
   title: string;
   content: string;
   createdAt: Date;
+  imageUrl?: string | null;
   announcementCategoryName: string;
   studentNames?: string;
   studentCount?: number;

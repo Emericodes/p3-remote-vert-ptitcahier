@@ -231,7 +231,7 @@
     margin-right: 0;
     max-width: 100%;
   }
-  dashboard_container {
+  .dashboard_container {
     padding: 0 1rem;
     gap: 1.5rem;
   }
@@ -282,11 +282,6 @@
     gap: 0.625rem;
   }
 
-  .carousel_wrapper {
-    padding: 12px;
-    border-radius: 14px;
-  }
-
   .nav_button {
     width: 40px;
     height: 40px;
@@ -306,6 +301,8 @@
     overflow: hidden;
     border-radius: 18px;
     cursor: grab;
+    padding: 12px;
+    border-radius: 14px;
   }
   .carousel_item {
     padding: 0;

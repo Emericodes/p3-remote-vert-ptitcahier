@@ -47,15 +47,20 @@ schoolRouter.get("/me/students", studentActions.browseBySchool);
 schoolRouter.get("/me/parents", parentActions.browseBySchool);
 schoolRouter.get("/me/classrooms", classroomActions.browseBySchool);
 schoolRouter.post(
-  "/announcements",
-  announcementActions.validate,
-  announcementActions.add,
+  "/me/announcements",
+  announcementActions.uploadImageMiddleware.single("image"),
+  announcementActions.validateAnnouncementFormat,
+  announcementActions.verifyDatabaseRelations,
+  announcementActions.createAnnouncement,
 );
-schoolRouter.delete("/me/announcements/:id", announcementActions.destroy);
+schoolRouter.delete(
+  "/me/announcements/:id",
+  announcementActions.deleteAnnouncement,
+);
 schoolRouter.put(
   "/me/announcements/:id",
-  announcementActions.validateUpdate,
-  announcementActions.update,
+  announcementActions.validateUpdateFormat,
+  announcementActions.updateAnnouncementContent,
 );
 schoolRouter.patch("/tickets/:id/status", ticketActions.editStatus);
 schoolRouter.post("/me/students", studentActions.validate, studentActions.add);

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import AnnouncementForm from "../../components/AnnouncementForm/AnnouncementForm";
 import type { AnnouncementCategory } from "../../types/AnnouncementCategory";
+import type { AnnouncementNew as AnnouncementNewType } from "../../types/AnnouncementNew"; // Ajout de l'import
 import type { Classroom } from "../../types/Classroom";
 import type { OutletAuthContext } from "../../types/OutletAuthContext";
 import type { Student } from "../../types/Student";
@@ -16,6 +17,7 @@ function AnnouncementNew() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingError, setLoadingError] = useState<boolean>(false);
+
   const navigate = useNavigate();
   const { auth } = useOutletContext<OutletAuthContext>();
 
@@ -42,10 +44,10 @@ function AnnouncementNew() {
         }
         return res.json();
       }),
-    ]).then(([announcementCategories, students]) => {
-      if (!announcementCategories || !students) return;
-      setAnnouncementCategories(announcementCategories);
-      setStudents(students);
+    ]).then(([fetchedCategories, fetchedStudents]) => {
+      if (!fetchedCategories || !fetchedStudents) return;
+      setAnnouncementCategories(fetchedCategories);
+      setStudents(fetchedStudents);
     });
   }, [auth]);
 
@@ -61,6 +63,50 @@ function AnnouncementNew() {
     return Array.from(classroomsById.entries())
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => a.id - b.id);
+  };
+
+  const submitNewAnnouncement = (newAnnouncement: AnnouncementNewType) => {
+    setIsSubmitting(true);
+    setError(null);
+
+    // Création du format d'envoi spécial pour les fichiers
+    const formData = new FormData();
+    formData.append("title", newAnnouncement.title);
+    formData.append("content", newAnnouncement.content);
+    formData.append(
+      "announcementCategoryId",
+      String(newAnnouncement.announcementCategoryId),
+    );
+
+    formData.append("studentIds", JSON.stringify(newAnnouncement.studentIds));
+
+    if (newAnnouncement.image) {
+      formData.append("image", newAnnouncement.image);
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/api/schools/me/announcements`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${auth?.token}`,
+      },
+      body: formData,
+    })
+      .then((response) => response.ok)
+      .then((isSuccess) => {
+        if (!isSuccess) {
+          setError("Une erreur est survenue. Veuillez renvoyer votre demande.");
+        }
+        setFormSent(true);
+        setIsSubmitting(false);
+      })
+      .catch(() => {
+        // Sécurité supplémentaire en cas de coupure internet
+        setError(
+          "Impossible de contacter le serveur. Vérifiez votre connexion.",
+        );
+        setFormSent(true);
+        setIsSubmitting(false);
+      });
   };
 
   return (
@@ -98,28 +144,7 @@ function AnnouncementNew() {
           classrooms={classrooms()}
           students={students}
           isSubmitting={isSubmitting}
-          onSubmit={(newAnnouncement) => {
-            setIsSubmitting(true);
-            setError(null);
-            fetch(`${import.meta.env.VITE_API_URL}/api/schools/announcements`, {
-              method: "post",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${auth?.token}`,
-              },
-              body: JSON.stringify(newAnnouncement),
-            })
-              .then((response) => response.ok)
-              .then((ok) => {
-                if (!ok) {
-                  setError(
-                    "Une erreur est survenue. Veuillez renvoyer votre demande.",
-                  );
-                }
-                setFormSent(true);
-                setIsSubmitting(false);
-              });
-          }}
+          onSubmit={submitNewAnnouncement}
         />
       )}
     </main>

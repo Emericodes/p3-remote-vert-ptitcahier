@@ -3,4 +3,5 @@ export type AnnouncementNew = {
   content: string;
   announcementCategoryId: number;
   studentIds: number[];
+  image?: File;
 };

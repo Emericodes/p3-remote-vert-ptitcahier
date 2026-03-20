@@ -1,35 +1,57 @@
 import type { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
 import joi from "joi";
+import announcementImageUploadMiddleware from "../../middleware/upload";
 import announcementCategoryRepository from "../announcementCategory/announcementCategoryRepository";
 import studentRepository from "../student/studentRepository";
 import announcementRepository from "./announcementRepository";
 
-const add: RequestHandler = async (req, res, next) => {
+// 1. SCHÉMAS DE VALIDATION (Déclarés une seule fois)
+
+const creationSchema = joi.object({
+  title: joi.string().max(120).required(),
+  content: joi.string().max(1000).required(),
+  announcementCategoryId: joi.number().integer().positive().required(),
+  studentIds: joi
+    .array()
+    .items(joi.number().integer().positive())
+    .min(1)
+    .required(),
+});
+
+const updateContentSchema = joi.object({
+  content: joi.string().max(1000).required(),
+});
+
+// 2. CONTRÔLEURS (Actions principales)
+
+const createAnnouncement: RequestHandler = async (req, res, next) => {
   try {
-    const newAnnouncement = {
+    const imageUrl = req.file
+      ? `/uploads/announcements/${req.file.filename}`
+      : undefined;
+    const schoolId = Number(req.auth.sub);
+
+    const announcementData = {
       title: req.body.title,
       content: req.body.content,
-      announcementCategoryId: req.body.announcementCategoryId,
+      announcementCategoryId: Number(req.body.announcementCategoryId),
       studentIds: req.body.studentIds,
     };
 
-    const schoolId = Number(req.auth.sub);
-
     const newInsertedAnnouncementId = await announcementRepository.create(
-      newAnnouncement,
+      announcementData,
       schoolId,
+      imageUrl,
     );
 
-    res.status(StatusCodes.CREATED).json({
-      newInsertedAnnouncementId,
-    });
+    res.status(StatusCodes.CREATED).json({ newInsertedAnnouncementId });
   } catch (err) {
     next(err);
   }
 };
 
-const browseByParent: RequestHandler = async (req, res, next) => {
+const fetchParentAnnouncements: RequestHandler = async (req, res, next) => {
   try {
     const parentId = Number(req.auth.sub);
     const categoryId = req.query.category
@@ -44,17 +66,15 @@ const browseByParent: RequestHandler = async (req, res, next) => {
       studentId,
       limit,
     );
-
     res.json(announcements);
   } catch (err) {
     next(err);
   }
 };
 
-const browseBySchool: RequestHandler = async (req, res, next) => {
+const fetchSchoolAnnouncements: RequestHandler = async (req, res, next) => {
   try {
     const schoolId = Number(req.auth.sub);
-
     const categoryId = req.query.category
       ? Number(req.query.category)
       : undefined;
@@ -63,47 +83,16 @@ const browseBySchool: RequestHandler = async (req, res, next) => {
       schoolId,
       categoryId,
     );
-
     res.json(announcements);
   } catch (err) {
     next(err);
   }
 };
 
-const destroy: RequestHandler = async (req, res, next) => {
+const deleteAnnouncement: RequestHandler = async (req, res, next) => {
   try {
     const announcementId = Number(req.params.id);
-
-    if (!Number.isInteger(announcementId)) {
-      res.status(StatusCodes.BAD_REQUEST).json({
-        error: "Identifiant d'annonce invalide",
-      });
-      return;
-    }
-
     const schoolId = Number(req.auth.sub);
-
-    const affectedRows = await announcementRepository.delete(
-      announcementId,
-      schoolId,
-    );
-
-    if (affectedRows === 0) {
-      res.status(StatusCodes.NOT_FOUND).json({
-        error: "Annonce introuvable",
-      });
-      return;
-    }
-
-    res.sendStatus(StatusCodes.NO_CONTENT);
-  } catch (err) {
-    next(err);
-  }
-};
-
-const update: RequestHandler = async (req, res, next) => {
-  try {
-    const announcementId = Number(req.params.id);
 
     if (!Number.isInteger(announcementId)) {
       res
@@ -112,16 +101,15 @@ const update: RequestHandler = async (req, res, next) => {
       return;
     }
 
-    const schoolId = Number(req.auth.sub);
-
-    const updatedAnnouncement = await announcementRepository.updateContent(
+    const affectedRows = await announcementRepository.delete(
       announcementId,
-      req.body.content,
       schoolId,
     );
 
-    if (updatedAnnouncement === 0) {
-      res.status(StatusCodes.NOT_FOUND).json({ error: "Annonce introuvable" });
+    if (affectedRows === 0) {
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Annonce introuvable ou non autorisée" });
       return;
     }
 
@@ -131,58 +119,99 @@ const update: RequestHandler = async (req, res, next) => {
   }
 };
 
-const validate: RequestHandler = async (req, res, next) => {
+const updateAnnouncementContent: RequestHandler = async (req, res, next) => {
   try {
-    const newAnnouncement = joi.object({
-      title: joi.string().max(120).required(),
-      content: joi.string().max(1000).required(),
-      announcementCategoryId: joi.number().integer().positive().required(),
-      studentIds: joi
-        .array()
-        .items(joi.number().integer().positive())
-        .min(1)
-        .required(),
-    });
+    const announcementId = Number(req.params.id);
+    const schoolId = Number(req.auth.sub);
 
-    const { error, value } = newAnnouncement.validate(req.body);
+    if (!Number.isInteger(announcementId)) {
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: "Identifiant d'annonce invalide" });
+      return;
+    }
 
+    const updatedAnnouncementRows = await announcementRepository.updateContent(
+      announcementId,
+      req.body.content,
+      schoolId,
+    );
+
+    if (updatedAnnouncementRows === 0) {
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ error: "Annonce introuvable ou non autorisée" });
+      return;
+    }
+
+    res.sendStatus(StatusCodes.NO_CONTENT);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// 3. MIDDLEWARES DE SÉCURITÉ ET VALIDATION
+
+const validateAnnouncementFormat: RequestHandler = async (req, res, next) => {
+  try {
+    // Étape 1 : Nettoyage pour FormData
+    if (typeof req.body.studentIds === "string") {
+      try {
+        req.body.studentIds = JSON.parse(req.body.studentIds);
+      } catch (parseError) {
+        res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ error: "Le format de la liste des étudiants est invalide" });
+        return;
+      }
+    }
+
+    // Étape 2 : Validation Joi
+    const { error } = creationSchema.validate(req.body);
     if (error) {
       res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ error: "Les données envoyées sont invalides" });
+        .json({ error: "Les données envoyées sont incomplètes ou invalides" });
       return;
     }
 
-    const currentAnnouncementCategory =
-      await announcementCategoryRepository.readById(
-        value.announcementCategoryId,
-      );
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
 
+const verifyDatabaseRelations: RequestHandler = async (req, res, next) => {
+  try {
+    const schoolId = Number(req.auth.sub);
+    const categoryId = req.body.announcementCategoryId;
+    const studentIds = req.body.studentIds;
+
+    // Étape 1 : Vérifier si la catégorie existe
+    const currentAnnouncementCategory =
+      await announcementCategoryRepository.readById(categoryId);
     if (!currentAnnouncementCategory) {
       res
         .status(StatusCodes.NOT_FOUND)
-        .json({ error: "Categorie introuvable" });
+        .json({ error: "La catégorie sélectionnée est introuvable" });
       return;
     }
 
-    const schoolId = Number(req.auth.sub);
-
-    const studentIds = req.body.studentIds;
-
+    // Étape 2 : Vérifier si les étudiants existent et appartiennent bien à cette école
     for (const studentId of studentIds) {
       const currentStudent = await studentRepository.read(studentId);
 
       if (!currentStudent) {
         res
           .status(StatusCodes.NOT_FOUND)
-          .json({ error: "Étudiant introuvable" });
+          .json({ error: `L'étudiant avec l'ID ${studentId} est introuvable` });
         return;
       }
 
       if (currentStudent.schoolId !== schoolId) {
         res
           .status(StatusCodes.UNPROCESSABLE_ENTITY)
-          .json({ error: "L'étudiant n'appartient pas à cette école" });
+          .json({ error: "Tentative d'ajout d'un étudiant d'une autre école" });
         return;
       }
     }
@@ -193,18 +222,14 @@ const validate: RequestHandler = async (req, res, next) => {
   }
 };
 
-const validateUpdate: RequestHandler = async (req, res, next) => {
+const validateUpdateFormat: RequestHandler = async (req, res, next) => {
   try {
-    const updateAnnouncement = joi.object({
-      content: joi.string().max(1000).required(),
-    });
-
-    const { error } = updateAnnouncement.validate(req.body);
+    const { error } = updateContentSchema.validate(req.body);
 
     if (error) {
       res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ error: "Les données envoyées sont invalides" });
+        .json({ error: "Le texte de l'annonce est invalide" });
       return;
     }
 
@@ -214,12 +239,16 @@ const validateUpdate: RequestHandler = async (req, res, next) => {
   }
 };
 
+// EXPORTATION
+
 export default {
-  add,
-  browseByParent,
-  browseBySchool,
-  destroy,
-  update,
-  validate,
-  validateUpdate,
+  createAnnouncement,
+  browseByParent: fetchParentAnnouncements,
+  browseBySchool: fetchSchoolAnnouncements,
+  deleteAnnouncement,
+  updateAnnouncementContent,
+  validateAnnouncementFormat,
+  verifyDatabaseRelations,
+  validateUpdateFormat,
+  uploadImageMiddleware: announcementImageUploadMiddleware,
 };

@@ -4,14 +4,18 @@ import type { Announcement } from "../../types/express/Announcement";
 import type { AnnouncementNew } from "../../types/express/AnnouncementNew";
 
 class AnnouncementRepository {
-  async create(newAnnouncement: AnnouncementNew, schoolId: number) {
+  async create(
+    newAnnouncement: AnnouncementNew,
+    schoolId: number,
+    imageUrl?: string,
+  ) {
     const { title, content, announcementCategoryId, studentIds } =
       newAnnouncement;
 
     const [result] = await databaseClient.query<Result>(
-      `INSERT INTO announcement (title, content, announcement_category_id, school_id)
-			VALUES (?, ?, ?, ?)`,
-      [title, content, announcementCategoryId, schoolId],
+      `INSERT INTO announcement (title, content, image_url, announcement_category_id, school_id)
+			VALUES (?, ?, ?, ?, ?)`,
+      [title, content, imageUrl ?? null, announcementCategoryId, schoolId],
     );
 
     const newAnnouncementId = result.insertId;
@@ -76,6 +80,7 @@ class AnnouncementRepository {
       a.id,
       a.title,
       a.content,
+      a.image_url AS imageUrl,
       a.created_at AS createdAt,
       ac.name AS announcementCategoryName,
       GROUP_CONCAT(s.first_name SEPARATOR ', ') AS studentNames
@@ -118,6 +123,7 @@ class AnnouncementRepository {
       a.id, 
       a.title, 
       a.content, 
+      a.image_url AS imageUrl,
       a.created_at AS createdAt,
       ac.name AS announcementCategoryName,
       COUNT(DISTINCT s.id) AS studentCount,

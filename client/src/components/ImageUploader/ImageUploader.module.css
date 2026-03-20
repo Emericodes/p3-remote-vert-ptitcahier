@@ -1,0 +1,40 @@
+.fieldset_title {
+  border: none;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.upload_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.5rem;
+  background-color: var(--dark-blue);
+  color: var(--white);
+  font-family: var(--font-family-text);
+  font-weight: 600;
+
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upload_button:hover {
+  filter: brightness(0.9);
+}
+
+.hidden_file_input {
+  display: none;
+}
+
+.preview_image {
+  display: block;
+  margin: 1rem auto 0 auto;
+  max-height: 200px;
+  border-radius: var(--border-radius);
+  object-fit: contain;
+  border: 2px solid var(--light-grey);
+}

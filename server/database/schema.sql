@@ -50,10 +50,11 @@ CREATE TABLE announcement (
     id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(120) NOT NULL,
     content VARCHAR(1000) NOT NULL,
+    image_url VARCHAR(255) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,        
     announcement_category_id INT UNSIGNED NOT NULL,
     school_id INT UNSIGNED NOT NULL,
-    FOREIGN KEY (announcement_category_id) REFERENCES announcement_category(id),
+    FOREIGN KEY (announcement_category_id) REFERENCES announcement_category(id) ON DELETE CASCADE,
     FOREIGN KEY (school_id) REFERENCES school(id)
 );
 
