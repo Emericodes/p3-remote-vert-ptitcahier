@@ -14,6 +14,7 @@
   color: var(--primary-color-text);
   font-family: var(--font-family-text);
   font-size: var(--font-size-text);
+  line-height: 1.5;
 }
 
 .parent-background {
@@ -66,13 +67,13 @@
 
 .non-primary-button {
   background: var(--white);
-  color: var(--dark-grey);
+  color: var(--black);
   border: 1px solid var(--light-grey);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .non-primary-button:hover {
-  border-color: var(--dark-grey);
+  border-color: var(--black);
   background-color: #f8fafc;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -82,6 +83,11 @@
   background: #e4e7ed;
   transform: translateY(0);
   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.5);
+}
+
+.non-primary-button:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
 }
 
 .non-primary-button,
@@ -126,12 +132,13 @@
 
 .non-primary-button {
   background: var(--white);
-  color: var(--dark-grey);
+
+  color: var(--black);
   border: 1px solid var(--light-grey);
 }
 
 .non-primary-button:hover {
-  border-color: var(--dark-grey);
+  border-color: var(--black);
   transform: translateY(-1px);
   box-shadow: var(--box-shadow-hover);
 }

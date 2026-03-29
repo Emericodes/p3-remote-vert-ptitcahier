@@ -94,6 +94,8 @@ function Login() {
           className={styles.logo}
         />
 
+        <h1 className="primary-title">Connexion</h1>
+
         {parentMessage ? (
           <div className={styles.form}>
             <p className={styles.parent_message}>
@@ -218,11 +220,16 @@ function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={
+                    showPassword
+                      ? "Masquer le mot de passe"
+                      : "Afficher le mot de passe"
+                  }
                 >
                   {showPassword ? (
-                    <Eye className={styles.icon_eye} />
+                    <Eye className={styles.icon_eye} aria-hidden="true" />
                   ) : (
-                    <EyeOff className={styles.icon_eye} />
+                    <EyeOff className={styles.icon_eye} aria-hidden="true" />
                   )}
                 </button>
               </div>
@@ -282,7 +289,7 @@ function Login() {
             <button
               type="button"
               onClick={fillDemoCredentials}
-              className={styles.demo}
+              className={`non-primary-button ${styles.demo}`}
             >
               {role === "parent"
                 ? "Connexion en démo Parent"

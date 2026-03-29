@@ -106,17 +106,13 @@ function NavBar() {
             </button>
           )}
 
-          <NavLink
-            to={isSchoolUser ? "/school/home" : "/parent/home"}
-            className={styles.footerLogoLink}
-            aria-label="Retour à l'accueil"
-          >
+          <div className={styles.footerLogoLink}>
             <img
               src={siteLogo}
               alt="Logo P'tit Cahier"
               className={styles.footerLogo}
             />
-          </NavLink>
+          </div>
           {isSidebarOpen && (
             <p className={styles.footerText}>P'tit Cahier © 2026</p>
           )}
@@ -125,18 +121,14 @@ function NavBar() {
 
       <nav className={mobileNavStyle} aria-label="Navigation mobile">
         <div className={styles.mobileRow}>
-          <NavLink
-            to={isSchoolUser ? "/school/home" : "/parent/home"}
-            className={styles.mobileHome}
-            aria-label="Retour à l'accueil"
-          >
+          <div className={styles.mobileHome}>
             <img
               src={siteLogo}
               alt=""
               className={styles.mobileLogo}
               aria-hidden="true"
             />
-          </NavLink>
+          </div>
 
           {menuItems.map((item) => (
             <NavLink

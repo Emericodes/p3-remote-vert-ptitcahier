@@ -1,11 +1,9 @@
 .landingContainer {
-  font-family: var(--font-family-card-title);
-  color: var(--dark-blue);
-  line-height: 1.6;
+  min-height: 100vh;
 }
 
 .heroSection {
-  background-color: rgba(227, 188, 17, 0.57);
+  background: var(--background-rainbow-light);
   padding: 2rem 5%;
   text-align: center;
 }
@@ -43,15 +41,14 @@
 }
 
 .mainTitle {
-  font-size: 2.5rem;
   margin-bottom: 1.5rem;
-  color: #2c3e50;
 }
 
 .heroSubtitle {
-  font-size: 1.2rem;
   margin-bottom: 2.5rem;
   opacity: 0.9;
+  margin-top: 0;
+  color: var(--dark-blue);
 }
 
 .actionGroup {
@@ -75,7 +72,6 @@
 
 .sectionTitle {
   margin-bottom: 3rem;
-  font-size: 2rem;
 }
 
 .featuresGrid {
@@ -86,12 +82,24 @@
 
 .featureCard {
   background: linear-gradient(135deg, #06405a, #165f9e, #0b8fd1);
-  color: white;
-  font-size: var(--font-size-button);
+  color: var(--white);
   padding: 2.5rem;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease;
+}
+
+.featureCard .card-title,
+.featureCard .text {
+  color: var(--white);
+}
+
+.featureCard .card-title {
+  margin: 0 0 0.75rem 0;
+}
+
+.featureCard .text {
+  margin: 0;
 }
 
 .featureCard:hover {
@@ -117,8 +125,11 @@
 .securityFooter {
   padding: 3rem;
   text-align: center;
-  font-size: 0.9rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--light-grey);
+}
+
+.securityFooter .text {
+  color: var(--dark-blue);
 }
 .icon-parent-img {
   width: 110px;
@@ -129,6 +140,19 @@
 .journal-vie-img {
   width: 310px;
   height: auto;
+}
+
+.copyrightText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.studentProjectBadge {
+  font-family: var(--font-family-card-title);
+  font-weight: 600;
+  color: var(--primary-color-title);
 }
 
 @media (max-width: 900px) {

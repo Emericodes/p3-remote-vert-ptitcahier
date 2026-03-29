@@ -69,7 +69,6 @@ function AnnouncementNew() {
     setIsSubmitting(true);
     setError(null);
 
-    // Création du format d'envoi spécial pour les fichiers
     const formData = new FormData();
     formData.append("title", newAnnouncement.title);
     formData.append("content", newAnnouncement.content);
@@ -100,10 +99,7 @@ function AnnouncementNew() {
         setIsSubmitting(false);
       })
       .catch(() => {
-        // Sécurité supplémentaire en cas de coupure internet
-        setError(
-          "Impossible de contacter le serveur. Vérifiez votre connexion.",
-        );
+        setError("Une erreur est survenue. Veuillez vérifier votre connexion");
         setFormSent(true);
         setIsSubmitting(false);
       });

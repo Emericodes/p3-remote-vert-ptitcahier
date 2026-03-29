@@ -1,25 +1,15 @@
 .background_parent_login {
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    rgba(13, 162, 231, 0.3) 0%,
-    rgba(249, 112, 21, 0.3) 35%,
-    rgba(231, 176, 8, 0.3) 65%,
-    rgba(22, 162, 73, 0.3) 100%
-  );
-  padding-top: 3rem;
+  min-height: 100dvh;
+  background: var(--background-rainbow-light);
+  padding: 3rem 0;
 }
 
 .background_school_login {
   min-height: 100vh;
-  background: linear-gradient(
-    135deg,
-    #d2e9ff 0%,
-    #cceef5 35%,
-    #cceee6 65%,
-    #ddd6f4 100%
-  );
-  padding-top: 3rem;
+  min-height: 100dvh;
+  background-color: var(--background-grey);
+  padding: 3rem 0;
 }
 
 .login_container {
@@ -170,7 +160,7 @@
   width: 2.5rem;
   height: 2.5rem;
   cursor: pointer;
-  color: var(--dark-grey);
+  color: var(--dark-blue);
 }
 
 .ticket_buttons_container {
@@ -207,10 +197,8 @@
 }
 
 .demo {
-  color: var(--dark-grey);
-  font-family: var(--font-family-text);
-  font-size: var(--font-size-text);
   transition: all 0.2s ease;
+  max-width: 600px;
 }
 
 .demo:hover {

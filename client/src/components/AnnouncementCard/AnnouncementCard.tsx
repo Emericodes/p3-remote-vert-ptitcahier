@@ -6,8 +6,6 @@ import type { OutletAuthContext } from "../../types/OutletAuthContext";
 import AnnouncementContentTextarea from "../AnnouncementContentTextarea/AnnouncementContentTextarea";
 import styles from "./AnnouncementCard.module.css";
 
-// FONCTIONS
-
 function extractStudentNamesList(studentNamesString?: string): string[] {
   if (!studentNamesString) return [];
   return studentNamesString.split(",").map((name) => name.trim());
@@ -15,16 +13,13 @@ function extractStudentNamesList(studentNamesString?: string): string[] {
 
 function calculateClassroomDistribution(classroomNamesString?: string) {
   if (!classroomNamesString) return [];
-
   const classroomNamesArray = classroomNamesString
     .split(",")
     .map((name) => name.trim());
   const distributionMap: Record<string, number> = {};
-
   for (const name of classroomNamesArray) {
     distributionMap[name] = (distributionMap[name] || 0) + 1;
   }
-
   return Object.keys(distributionMap).map((name) => ({
     name: name,
     count: distributionMap[name],
@@ -45,8 +40,6 @@ function getBadgeStyleForCategory(categoryName: string): string {
       return styles.an_badge_default;
   }
 }
-
-// COMPOSANT PRINCIPAL
 
 type AnnouncementCardProps = {
   announcement: Announcement;
@@ -77,7 +70,6 @@ function AnnouncementCard({
   useEffect(() => {
     const currentDialog = imageDialogReference.current;
     if (!currentDialog) return;
-
     if (isImageZoomed) {
       currentDialog.showModal();
     } else {
@@ -86,29 +78,18 @@ function AnnouncementCard({
   }, [isImageZoomed]);
 
   const closeModalWithBackgroundClick = (event: React.MouseEvent) => {
-    if (event.target === imageDialogReference.current) {
-      setIsImageZoomed(false);
-    }
+    if (event.target === imageDialogReference.current) setIsImageZoomed(false);
   };
 
   const closeModalWithKeyboard = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") {
-      setIsImageZoomed(false);
-    }
+    if (event.key === "Escape") setIsImageZoomed(false);
   };
 
-  // --- LOGIQUE D'ÉDITION DU TEXTE ---
   useEffect(() => {
-    if (!isEditModeActive) {
-      setEditableAnnouncementText(announcement.content);
-    }
+    if (!isEditModeActive) setEditableAnnouncementText(announcement.content);
   }, [announcement.content, isEditModeActive]);
 
-  const enableEditMode = () => {
-    setEditableAnnouncementText(announcement.content);
-    setIsEditModeActive(true);
-  };
-
+  const enableEditMode = () => setIsEditModeActive(true);
   const discardEditChanges = () => {
     setIsEditModeActive(false);
     setEditableAnnouncementText(announcement.content);
@@ -116,7 +97,6 @@ function AnnouncementCard({
 
   const submitUpdatedAnnouncementText = async () => {
     if (!onEdit) return;
-
     const cleanedText = editableAnnouncementText.trim();
     if (
       cleanedText.length === 0 ||
@@ -125,14 +105,20 @@ function AnnouncementCard({
       setIsEditModeActive(false);
       return;
     }
-
     const isUpdateSuccessful = await onEdit(announcement.id, cleanedText);
-    if (isUpdateSuccessful !== false) {
-      setIsEditModeActive(false);
+    if (isUpdateSuccessful !== false) setIsEditModeActive(false);
+  };
+
+  const confirmAndDelete = () => {
+    if (
+      window.confirm(
+        `Voulez-vous vraiment supprimer l'annonce "${announcement.title}" ?`,
+      )
+    ) {
+      onDelete?.(announcement.id);
     }
   };
 
-  // --- PRÉPARATION DES DONNÉES D'AFFICHAGE ---
   const formattedPublicationDate = new Date(
     announcement.createdAt,
   ).toLocaleString("fr-FR", {
@@ -149,44 +135,45 @@ function AnnouncementCard({
   const classroomDistributionList = calculateClassroomDistribution(
     announcement.classroomNames,
   );
-
   const isSchoolUser = auth?.role === "school";
   const isParentUser = auth?.role === "parent";
   const isAuthorizedToDelete = isSchoolUser && typeof onDelete === "function";
   const isAuthorizedToEdit = isSchoolUser && typeof onEdit === "function";
 
-  // RENDU
-
   return (
     <article
       className={`${styles.ann_card} ${variant === "dashboard" ? styles.card_dashboard : ""}`}
+      aria-labelledby={`title-${announcement.id}`}
     >
       <section className={styles.content_card}>
-        {/* EN-TÊTE ET IMAGE */}
         <div className={styles.media_block}>
           <header>
-            <h2 className={styles.title}>{announcement.title}</h2>
+            <h2 id={`title-${announcement.id}`} className={styles.title}>
+              {announcement.title}
+            </h2>
           </header>
+
           {announcement.imageUrl && (
             <button
               type="button"
               className={styles.imageTrigger}
               onClick={() => setIsImageZoomed(true)}
+              aria-haspopup="dialog"
+              aria-label={`Agrandir l'image de l'annonce : ${announcement.title}`}
             >
               <img
                 src={`${backendServerUrl}${announcement.imageUrl}`}
-                alt="Illustration de l'annonce"
+                alt={`Illustration : ${announcement.title}`}
                 className={styles.mainImage}
               />
             </button>
           )}
         </div>
 
-        {/* CONTENU OU ÉDITION */}
         {isEditModeActive ? (
           <div className={styles.edit_block}>
             <AnnouncementContentTextarea
-              ariaLabel="Modifier le texte de l'annonce"
+              ariaLabel={`Modifier le texte de l'annonce : ${announcement.title}`}
               value={editableAnnouncementText}
               onChange={setEditableAnnouncementText}
             />
@@ -204,7 +191,7 @@ function AnnouncementCard({
                 onClick={submitUpdatedAnnouncementText}
                 disabled={editableAnnouncementText.trim().length === 0}
               >
-                Enregistrer
+                Enregistrer les modifications
               </button>
             </div>
           </div>
@@ -212,7 +199,6 @@ function AnnouncementCard({
           <p className={styles.text}>{announcement.content}</p>
         )}
 
-        {/* PIED DE CARTE (Boutons et Date) */}
         <footer className={styles.footerInfo}>
           {(isAuthorizedToEdit || isAuthorizedToDelete) &&
             !isEditModeActive && (
@@ -222,6 +208,7 @@ function AnnouncementCard({
                     type="button"
                     className={styles.edit_button}
                     onClick={enableEditMode}
+                    aria-label={`Modifier l'annonce : ${announcement.title}`}
                   >
                     <Pencil className={styles.edit_icon} aria-hidden="true" />
                     <span className={styles.edit_label}>Modifier</span>
@@ -231,7 +218,8 @@ function AnnouncementCard({
                   <button
                     type="button"
                     className={styles.delete_button}
-                    onClick={() => onDelete(announcement.id)}
+                    onClick={confirmAndDelete}
+                    aria-label={`Supprimer l'annonce : ${announcement.title}`}
                   >
                     <Trash2 className={styles.delete_icon} aria-hidden="true" />
                     <span className={styles.delete_label}>Supprimer</span>
@@ -239,13 +227,15 @@ function AnnouncementCard({
                 )}
               </div>
             )}
-          <time className={styles.dateLabel}>
+          <time
+            className={styles.dateLabel}
+            dateTime={new Date(announcement.createdAt).toISOString()}
+          >
             Publié le {formattedPublicationDate}
           </time>
         </footer>
       </section>
 
-      {/* BARRE LATÉRALE (Badges et Tags) */}
       {variant !== "dashboard" && (
         <aside className={styles.badgeSidebar}>
           <span
@@ -255,7 +245,6 @@ function AnnouncementCard({
           >
             {announcement.announcementCategoryName}
           </span>
-
           {isSchoolUser && (
             <ul className={styles.tagList}>
               {(announcement.totalStudents || 0) > 0 &&
@@ -303,18 +292,20 @@ function AnnouncementCard({
           className={styles.imageModal}
           onClick={closeModalWithBackgroundClick}
           onKeyDown={closeModalWithKeyboard}
+          aria-label="Aperçu de l'image en plein écran"
         >
           <div className={styles.modalWrapper}>
             <button
               type="button"
               className={styles.closeButton}
               onClick={() => setIsImageZoomed(false)}
+              aria-label="Fermer l'image"
             >
               &times;
             </button>
             <img
               src={`${backendServerUrl}${announcement.imageUrl}`}
-              alt="Annonce en plein écran"
+              alt={`Vue agrandie : ${announcement.title}`}
               className={styles.fullSizeImage}
             />
           </div>

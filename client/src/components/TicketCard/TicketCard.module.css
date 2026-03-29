@@ -69,13 +69,13 @@
 
 .statusBadge[data-status="pending"] {
   background: color-mix(in srgb, var(--orange) 18%, white);
-  color: var(--orange);
+  color: color-mix(in srgb, var(--orange) 85%, var(--black));
   border-color: color-mix(in srgb, var(--orange) 40%, white);
 }
 
 .statusBadge[data-status="processed"] {
   background: color-mix(in srgb, var(--green) 18%, white);
-  color: var(--green);
+  color: color-mix(in srgb, var(--green) 85%, var(--black));
   border-color: color-mix(in srgb, var(--green) 40%, white);
 }
 
@@ -184,7 +184,8 @@
   margin: 0;
   font-family: var(--font-family-text);
   font-size: 0.95rem;
-  color: var(--dark-grey);
+  color: var(--black);
+  opacity: 0.75;
 }
 
 .card[data-type="urgent"] .leftPanel {

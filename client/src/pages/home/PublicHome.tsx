@@ -32,8 +32,8 @@ const FeatureItem = ({
         />
       )}
     </div>
-    <h3>{title}</h3>
-    <p>{description}</p>
+    <h3 className="card-title">{title}</h3>
+    <p className="text">{description}</p>
   </article>
 );
 export default function PublicHome() {
@@ -83,10 +83,10 @@ export default function PublicHome() {
 
         <div className={styles.heroContent}>
           <section className={styles.heroTextGroup}>
-            <h1 className={styles.mainTitle}>
+            <h1 className={`primary-title ${styles.mainTitle}`}>
               Le trait d'union numérique entre l'établissement et la famille.
             </h1>
-            <p className={styles.heroSubtitle}>
+            <p className={`text ${styles.heroSubtitle}`}>
               Digitaliser sans déshumaniser : vivez l'école de vos enfants en
               toute sérénité.
             </p>
@@ -124,7 +124,7 @@ export default function PublicHome() {
         className={styles.benefitsSection}
         aria-labelledby="benefits-title"
       >
-        <h2 id="benefits-title" className={styles.sectionTitle}>
+        <h2 id="benefits-title" className={`card-title ${styles.sectionTitle}`}>
           Pourquoi vous allez l'adorer
         </h2>
         <div className={styles.featuresGrid}>
@@ -142,8 +142,12 @@ export default function PublicHome() {
 
       <footer className={styles.securityFooter}>
         <div className={styles.copyrightText}>
-          <p>© 2026 Team P'tit Cahier - Tous droits réservés</p>
-          <p className={styles.studentProjectBadge}>Projet Étudiant</p>
+          <p className="text">
+            © 2026 Team P'tit Cahier - Tous droits réservés
+          </p>
+          <p className={`text ${styles.studentProjectBadge}`}>
+            Projet Étudiant
+          </p>
         </div>
       </footer>
     </main>

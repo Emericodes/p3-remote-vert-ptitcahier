@@ -31,7 +31,7 @@
 .secondary_section_title {
   font-family: var(--font-family-card-title);
   font-size: 1.1rem;
-  color: var(--dark-grey);
+  color: var(--dark-blue);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
@@ -117,11 +117,20 @@
 }
 
 .stat_group dt {
-  font-size: 1 rem;
+  font-size: 1rem;
   color: var(--dark-blue);
   font-family: var(--font-family-text);
   font-weight: 500;
   margin-bottom: 0.25rem;
+}
+
+.empty_message {
+  font-family: var(--font-family-text);
+  font-size: var(--font-size-text);
+  color: var(--black);
+  opacity: 0.85;
+  text-align: center;
+  margin: 0.5rem 0;
 }
 
 .stat_group dd {

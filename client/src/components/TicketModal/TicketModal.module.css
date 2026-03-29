@@ -170,7 +170,8 @@
 .subTitle {
   font-family: var(--font-family-text);
   font-size: 0.95rem;
-  color: var(--dark-grey);
+  color: var(--black);
+  opacity: 0.75;
 }
 
 .closeButton {
@@ -185,7 +186,7 @@
   background: transparent;
   font-size: 1.6rem;
   line-height: 1;
-  color: var(--dark-grey);
+  color: var(--dark-blue);
   cursor: pointer;
   transition: background 160ms ease, color 160ms ease;
 }
@@ -242,14 +243,15 @@
 
 .infoLabel {
   font-family: var(--font-family-button);
-  color: var(--dark-grey);
+  color: var(--dark-blue);
 }
 
 .attachmentPlaceholder {
   margin: 0;
   font-family: var(--font-family-text);
   font-size: 0.98rem;
-  color: var(--dark-grey);
+  color: var(--black);
+  opacity: 0.75;
 }
 
 .messageBox {

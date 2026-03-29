@@ -6,8 +6,6 @@ import announcementCategoryRepository from "../announcementCategory/announcement
 import studentRepository from "../student/studentRepository";
 import announcementRepository from "./announcementRepository";
 
-// 1. SCHÉMAS DE VALIDATION (Déclarés une seule fois)
-
 const creationSchema = joi.object({
   title: joi.string().max(120).required(),
   content: joi.string().max(1000).required(),
@@ -22,8 +20,6 @@ const creationSchema = joi.object({
 const updateContentSchema = joi.object({
   content: joi.string().max(1000).required(),
 });
-
-// 2. CONTRÔLEURS (Actions principales)
 
 const createAnnouncement: RequestHandler = async (req, res, next) => {
   try {
